@@ -31,7 +31,6 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
-
-app.listen(port, function () {
-  console.log('Node.js listening ...');
+let listener = app.listen(process.env.PORT, () => {
+  console.log("Node.js is listening on http://localhost:" + listener.address().port);
 });

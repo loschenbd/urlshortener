@@ -1,12 +1,14 @@
 'use strict';
 
 var express = require('express');
-var mongo = require('mongodb');
+var mongodb = require('mongodb');
 var mongoose = require('mongoose');
-mongoose.connect(process.env.MONGODB_URI);
+var bodyParser = require('body-parser');
+require('dotenv').config();
+mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
 
 var cors = require('cors');
-var dotenv = require('dotenv').config();
+require('dotenv').config();
 
 
 var app = express();

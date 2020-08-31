@@ -3,8 +3,11 @@
 var express = require('express');
 var mongo = require('mongodb');
 var mongoose = require('mongoose');
+mongoose.connect(process.env.MONGODB_URI);
 
 var cors = require('cors');
+var dotenv = require('dotenv').config();
+
 
 var app = express();
 

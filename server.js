@@ -5,8 +5,13 @@ var mongodb = require('mongodb');
 var mongoose = require('mongoose');
 var bodyParser = require('body-parser');
 require('dotenv').config();
-mongoose.connect(process.env.MONGODB_URI, {useNewUrlParser: true});
-
+mongoose.connect("mongodb+srv://"+ process.env.MONGO_USER +":"+ process.env.MONGO_PASS +"@cluster0.nlxxb.mongodb.net/" +process.env.MONGO_DB
+, {useNewUrlParser: true,
+  useUnifiedTopology: true});
+mongoose.connection.on('error', (err) => {
+  console.error(`Mongoose connection error: ${err}`);
+  process.exit(1);
+});
 var cors = require('cors');
 require('dotenv').config();
 

@@ -23,6 +23,7 @@ mongoose.connection.on('error', (err) => {
   console.error(`Mongoose connection error: ${err}`);
   process.exit(1);
 });
+mongoose.set('useFindAndModify', false);
 
 app.use(cors());
 
@@ -55,9 +56,51 @@ let resObj = {};
 
 app.post('/api/shorturl/new', bodyParser.urlencoded({ extended: false }) , (req, res) => {
   let inputLink = req.body['url'];
-  resObj['stored_url'] = inputLink;
 
-  res.json(resObj);
+  // Invalid URL checking
+  const URLREGEX = new RegExp(/[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi);
+if(!inputLink.match(URLREGEX)) {
+  res.json({ error: 'Invalid URL' });
+  return
+}
+
+  // Create URL and short url
+  resObj['stored_url'] = inputLink;
+  let shortIncrement = 1;
+  Url.findOne({})
+    .sort({short: 'desc'})
+    .exec((error, result) => {
+      if(!error && result != undefined){
+        shortIncrement = result.short + 1;
+      }
+      if (!error) {
+        Url.findOneAndUpdate(
+          {stored_url: inputLink},
+          {stored_url: inputLink, short: shortIncrement},
+          {new: true, upsert: true},
+          (error, savedUrl) => {
+            if(!error) {
+              resObj['short']= savedUrl.short;
+              res.json(resObj);
+            }
+          }
+        )
+      }
+  });
+
+
+});
+
+app.get('/api/shorturl/:input', (req, res) => {
+  let input = req.params.input;
+
+  Url.findOne({short: input}, (error, result) => {
+    if(!error && result !== undefined) {
+      res.redirect(result['stored_url'])
+    } else {
+      res.json('No URL');
+    }
+  });
 });
 
 // Listen
